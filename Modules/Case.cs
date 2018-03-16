@@ -36,9 +36,6 @@ namespace Discord_BOT.Modules
             var account = UserAccounts.GetAccount(Context.User);
             if (!CanOpen(account)) return;
 
-            account.NumberOfCases--;
-            account.NumberOfKeys--;
-
             Prize prize = Prize.GetRandomPrize(prizes, scale); 
 
             await Context.Channel.SendMessageAsync($"Wygrales **{prize.Name}**");
