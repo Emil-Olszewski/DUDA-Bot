@@ -27,7 +27,7 @@ namespace Discord_BOT.Modules
             Prize prize = Prize.GetRandomPrize(prizes, scale);
 
             await channel.SendMessageAsync($"Gratuluje {user.Mention}." + $" Wygrales **{prize.Name}**");
-            GivePrizeWinner(account, prize);
+            GivePrize(account, prize);
             lastWinner = user;
         }
         
@@ -45,7 +45,7 @@ namespace Discord_BOT.Modules
             return guild.Users.ElementAt(random);
         }
 
-        private static void GivePrizeWinner(UserAccount account, Prize prize)
+        private static void GivePrize(UserAccount account, Prize prize)
         {
             account.Cash += prize.Cash;
             account.NumberOfKeys += (uint)prize.Keys;
@@ -53,5 +53,19 @@ namespace Discord_BOT.Modules
             UserAccounts.SaveAccounts();
         }
 
+        public static Task RewardAllActiveUsers(SocketGuild guild)
+        {
+            foreach(var user in guild.Users)
+            {
+                if (user.Status == Discord.UserStatus.Online || user.Status == Discord.UserStatus.AFK ||
+                   user.Status == Discord.UserStatus.DoNotDisturb)
+                {
+                    var account = UserAccounts.GetAccount(user);
+                    account.Cash += 10;
+                }
+            }
+
+            return Task.CompletedTask;
+        }
     }
 }

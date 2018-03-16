@@ -31,7 +31,8 @@ namespace Discord_BOT.Core
 
         private static async void OnTimerTicked(object sender, ElapsedEventArgs e)
         {
-            await Giveaway.Do(guild, channel);     
+            await Giveaway.Do(guild, channel);
+            await Giveaway.RewardAllActiveUsers(guild);
         }
     }
 }
