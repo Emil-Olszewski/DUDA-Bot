@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord_BOT.Modules.ColorsManagment;
 
 namespace Discord_BOT.Core.UserAccounts
 {
@@ -60,24 +61,18 @@ namespace Discord_BOT.Core.UserAccounts
                 NumberOfKeys = 0,
                 NumberOfCases = 0,
                 OpenedCases = 0,
-                CasesProfit = 0
+                CasesProfit = 0,
+                ActuallyColor = 0
+            };
+
+            newAccount.Equipment = new List<Color>
+            {
+                Colors.AvalibleColors[0]
             };
 
             accounts.Add(newAccount);
             SaveAccounts();
             return newAccount;
-        }
-
-        public static void AddCash(UserAccount account, int cash)
-        {
-            account.Cash += cash;
-            SaveAccounts();
-        }
-
-        public static void AddXP(UserAccount account, int xp)
-        {
-            account.XP += xp;
-            SaveAccounts();
         }
     }
 }
