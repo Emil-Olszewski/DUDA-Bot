@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using Discord_BOT.Modules.ColorsManagment;
 
 namespace Discord_BOT.Core.UserAccounts
 {
@@ -37,6 +39,8 @@ namespace Discord_BOT.Core.UserAccounts
         public uint NumberOfKeys { get; set; }
         public uint OpenedCases { get; set; }
         public uint CasesProfit { get; set; }
+        public List<Color> Equipment { get; set; }
+        public uint ActuallyColor { get; set; }
         
         public DateTime last500Use { get; set; }
         public DateTime last10Use { get; set; }
