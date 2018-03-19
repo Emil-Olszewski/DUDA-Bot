@@ -19,14 +19,14 @@ namespace Discord_BOT
 
         public async Task startAsync()
         {
-            if (Config.bot.token is null || Config.bot.token == "") return;
+            if (Config.Bot.token is null || Config.Bot.token == "") return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
             });
             _client.Log += Log;
             _client.Ready += RepeatingTime.StartTimer;
-            await _client.LoginAsync(TokenType.Bot, Config.bot.token);
+            await _client.LoginAsync(TokenType.Bot, Config.Bot.token);
             await _client.StartAsync();
             Global.Client = _client;
             _handler = new CommandHandler();

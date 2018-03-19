@@ -25,7 +25,7 @@ namespace Discord_BOT
             if (msg is null) return;
             var context = new SocketCommandContext(_client, msg);
             int argPos = 0;
-            if (msg.HasStringPrefix(Config.bot.cmdPrefix, ref argPos) 
+            if (msg.HasStringPrefix(Config.Bot.cmdPrefix, ref argPos) 
                 || msg.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var result = await _service.ExecuteAsync(context, argPos);

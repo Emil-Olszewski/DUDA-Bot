@@ -8,7 +8,7 @@ namespace Discord_BOT
         private const string configFolder = "Resources";
         private const string configFile = "config.json";
 
-        public static BotConfig bot;
+        public static BotConfig Bot;
 
         static Config()
         {
@@ -17,14 +17,14 @@ namespace Discord_BOT
 
             if (!File.Exists(configFolder + "/" + configFile))
             {
-                bot = new BotConfig();
-                string json = JsonConvert.SerializeObject(bot, Formatting.Indented);
+                Bot = new BotConfig();
+                string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
                 File.WriteAllText(configFolder + "/" + configFile, json);
             }
             else
             {
                 string json = File.ReadAllText(configFolder + "/" + configFile);
-                bot = JsonConvert.DeserializeObject<BotConfig>(json);
+                Bot = JsonConvert.DeserializeObject<BotConfig>(json);
             }
         }
     }
@@ -33,10 +33,15 @@ namespace Discord_BOT
     {
         public string token;
         public string cmdPrefix;
-        public string time500;
-        public string time10;
-        public string timetransfer;
-        public string timeroulette;
-        public string timecase;
+        public int time500;
+        public int time10;
+        public int timeTransfer;
+        public int timeRoulette;
+        public int timeCase;
+        public int minimalRoulette;
+        public int minimalTransfer;
+        public int cash5Min;
+        public int minimalInvestment;
+        public int minimalInvestmentTime;
     }
 }
