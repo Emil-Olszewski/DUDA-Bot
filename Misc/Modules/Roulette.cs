@@ -54,9 +54,9 @@ namespace Discord_BOT.Modules
             Prize prize = DoDraw(placedCash, chance);
 
             if(prize.Cash > 0)
-                await Context.Channel.SendMessageAsync($"**WYGRALES!** Miales na to szanse **{(int)chance}%** i zarobiles **{prize.Cash}** dudow. Dodatkowo dostajesz {prize.XP} punktow statusu spolecznego.");
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention} **WYGRALES!** Miales na to szanse **{(int)chance}%** i zarobiles **{prize.Cash}** dudow. Dodatkowo dostajesz {prize.XP} punktow statusu spolecznego.");
             else
-                await Context.Channel.SendMessageAsync($"**PRZEGRALES.** Szansa na wygrana wynosila **{(int)chance}%** i straciles **{prize.Cash}** dudow. Udalo ci sie za to dostac **{prize.XP}** punktow statusu spolecznego.");
+                await Context.Channel.SendMessageAsync($"{Context.User.Mention} **PRZEGRALES.** Szansa na wygrana wynosila **{(int)chance}%** i straciles **{prize.Cash}** dudow. Udalo ci sie za to dostac **{prize.XP}** punktow statusu spolecznego.");
 
            GivePrize(account, prize);
     }

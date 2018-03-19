@@ -158,8 +158,8 @@ namespace Discord_BOT.Modules.ColorsManagment
             {
                 account.Cash -= (int)AvalibleColors[id].Price;
                 account.Equipment.Add(AvalibleColors[id]);
-                await Context.Channel.SendMessageAsync("Dokonano zakupu!");
                 UserAccounts.SaveAccounts();
+                await Context.Channel.SendMessageAsync("Dokonano zakupu!");
             }
             else
             {
@@ -196,7 +196,7 @@ namespace Discord_BOT.Modules.ColorsManagment
             {
                 var embed = new EmbedBuilder();
                 embed.WithColor(AvalibleColors[id].RightColor);
-                embed.WithTitle($"Probka koloru {AvalibleColors[id].Name}");
+                embed.WithTitle($"Probka koloru {AvalibleColors[id].Name} za **{AvalibleColors[id].Price}**");
                 await Context.Channel.SendMessageAsync("", false, embed);
             }
             
