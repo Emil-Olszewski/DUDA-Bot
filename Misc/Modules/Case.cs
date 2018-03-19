@@ -39,7 +39,7 @@ namespace Discord_BOT.Modules
 
             Prize prize = Prize.GetRandomPrize(prizes, scale); 
 
-            await Context.Channel.SendMessageAsync($"Wygrales **{prize.Name}**");
+            await Context.Channel.SendMessageAsync($"{Context.User.Mention} wygrales **{prize.Name}**");
             GivePrizeWinner(account, prize);
         }
 
