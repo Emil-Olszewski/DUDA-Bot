@@ -1,12 +1,10 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.WebSocket;
 using Discord_BOT.Core.UserAccounts;
 
-namespace Discord_BOT.Modules
+namespace Discord_BOT.Misc.Modules
 {
     public class AdminCommands : ModuleBase<SocketCommandContext>
     {
@@ -14,44 +12,26 @@ namespace Discord_BOT.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public Task CashDotation(int amount, [Remainder] string arg = "")
         {
-            SocketUser target = null;
             var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-            target = mentionedUser ?? Context.User;
+            var target = mentionedUser ?? Context.User;
             var account = UserAccounts.GetAccount(target);
 
             account.Cash += amount;
+
             UserAccounts.SaveAccounts();
             return Task.CompletedTask;
         }
 
         [Command("xp+")]
         [RequireUserPermission(GuildPermission.Administrator)]
-        public Task XPDotation(int amount, [Remainder] string arg = "")
+        public Task XpDotation(int amount, [Remainder] string arg = "")
         {
-            SocketUser target = null;
             var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-            target = mentionedUser ?? Context.User;
+            var target = mentionedUser ?? Context.User;
             var account = UserAccounts.GetAccount(target);
 
-            account.XP += amount;
-            UserAccounts.SaveAccounts();
-            return Task.CompletedTask;
-        }
+            account.Xp += amount;
 
-        [Command("t-reset")]
-        [RequireUserPermission(GuildPermission.Administrator)]
-        public Task ResetTimes([Remainder] string arg = "")
-        {
-            SocketUser target = null;
-            var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-            target = mentionedUser ?? Context.User;
-            var account = UserAccounts.GetAccount(target);
-
-            account.last10Use = DateTime.Now - new TimeSpan(10, 0, 0, 0);
-            account.last500Use = DateTime.Now - new TimeSpan(10, 0, 0, 0);
-            account.lastRoulette = DateTime.Now - new TimeSpan(10, 0, 0, 0);
-            account.lastTransfer = DateTime.Now - new TimeSpan(10, 0, 0, 0);
-            account.lastCaseOpen = DateTime.Now - new TimeSpan(10, 0, 0, 0);
             UserAccounts.SaveAccounts();
             return Task.CompletedTask;
         }
@@ -60,14 +40,28 @@ namespace Discord_BOT.Modules
         [RequireUserPermission(GuildPermission.Administrator)]
         public Task ResetUser([Remainder] string arg = "")
         {
-            SocketUser target = null;
             var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
-            target = mentionedUser ?? Context.User;
+            var target = mentionedUser ?? Context.User;
+            var account = UserAccounts.GetAccount(target);
 
-            var a = UserAccounts.GetAccount(target);
-            a.Cash = 0;
-            a.XP = 0;
-            a.Level = 0;
+            account.Cash = 0;
+            account.Xp = 0;
+            account.Level = 0;
+
+            UserAccounts.SaveAccounts();
+            return Task.CompletedTask;
+        }
+
+        [Command("vip")]
+        [RequireUserPermission(GuildPermission.Administrator)]
+        public Task GiveUserVip([Remainder] string arg = "")
+        {
+            var mentionedUser = Context.Message.MentionedUsers.FirstOrDefault();
+            var target = mentionedUser ?? Context.User;
+            var account = UserAccounts.GetAccount(target);
+
+            account.Vip = !account.Vip;
+
             UserAccounts.SaveAccounts();
             return Task.CompletedTask;
         }

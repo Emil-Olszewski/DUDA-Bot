@@ -1,34 +1,45 @@
 ﻿using Discord.WebSocket;
-using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Discord_BOT.Modules.ColorsManagment;
+using Discord_BOT.Misc.Modules.ColorsManagment;
+using Discord_BOT.Misc.Modules.InventorySystem;
+using Newtonsoft.Json;
 
 namespace Discord_BOT.Core.UserAccounts
 {
     public static class UserAccounts
     {
-        private static List<UserAccount> accounts;
-        private static string accountsFile = "Resources/accounts.json";
+        private static readonly List<UserAccount> Accounts;
+        private const string AccountsFile = "Resources/accounts.json";
 
         static UserAccounts()
-        {   
-            if(DataStorage.SaveExist(accountsFile))
-            {
-                accounts = DataStorage.LoadUserAccounts(accountsFile).ToList();
-            }
+        {
+            if (SaveExist())
+                Accounts = LoadUserAccounts().ToList();
             else
             {
-                accounts = new List<UserAccount>();
+                Accounts = new List<UserAccount>();
                 SaveAccounts();
             }
         }
 
+        public static IEnumerable<UserAccount> LoadUserAccounts()
+        {
+            if (!File.Exists(AccountsFile)) return null;
+            string json = File.ReadAllText(AccountsFile);
+            return JsonConvert.DeserializeObject<List<UserAccount>>(json);
+        }
+
         public static void SaveAccounts()
         {
-            DataStorage.SaveUserAccounts(accounts, accountsFile);
+            string json = JsonConvert.SerializeObject(Accounts);
+            File.WriteAllText(AccountsFile, json);
+        }
+
+        public static bool SaveExist()
+        {
+            return File.Exists(AccountsFile);
         }
 
         public static UserAccount GetAccount(SocketUser user)
@@ -43,34 +54,28 @@ namespace Discord_BOT.Core.UserAccounts
 
         private static UserAccount GetOrCreateAccount(ulong id)
         {
-            var result = from a in accounts where a.ID == id select a;
-            var account = result.FirstOrDefault();
-            if (account is null) account = CreateUserAccount(id);
-            
+            var account = Accounts.Find(x => x.Id == id) ?? CreateUserAccount(id);
             return account;
         }
 
         private static UserAccount CreateUserAccount(ulong id)
         {
-            var newAccount = new UserAccount()
+            var newAccount = new UserAccount
             {
-                ID = id,
+                Id = id,
                 Cash = 0,
-                XP = 0,
+                Xp = 0,
                 Level = 0,
-                NumberOfKeys = 0,
-                NumberOfCases = 0,
                 OpenedCases = 0,
                 CasesProfit = 0,
-                ActuallyColor = 0
+                ActuallyColor = 0,
+                Vip = false,
+                Inventory = new Inventory()
             };
 
-            newAccount.Equipment = new List<Color>
-            {
-                Colors.AvalibleColors[0]
-            };
+            newAccount.Inventory.Colors.Add(Colors.List[0]);
 
-            accounts.Add(newAccount);
+            Accounts.Add(newAccount);
             SaveAccounts();
             return newAccount;
         }

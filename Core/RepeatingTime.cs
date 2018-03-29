@@ -1,38 +1,35 @@
 ﻿using System.Threading.Tasks;
 using System.Timers;
 using Discord.WebSocket;
-using Discord_BOT.Modules;
+using Discord_BOT.Misc.Modules;
 
 namespace Discord_BOT.Core
 {
     internal static class RepeatingTime
     {
-        private static Timer timer;
-        private static SocketTextChannel channel;
-        private static SocketGuild guild;
-
-        private const long DUDA_SERWER = 369182365978984450;
-        private const long DUDA_CHANNEL = 422406927914500126;
+        private static Timer Timer;
+        private static SocketTextChannel Channel;
+        private static SocketGuild Guild;
 
         internal static Task StartTimer()
         {
-            guild = Global.Client.GetGuild(DUDA_SERWER);
-            channel = guild.GetTextChannel(DUDA_CHANNEL);
-            timer = new Timer()
+            Guild = Global.Client.GetGuild(Config.Bot.ServerId);
+            Channel = Guild.GetTextChannel(Config.Bot.GiveawayChannelId);
+            Timer = new Timer
             {
-                Interval = 60000*5,
+                Interval = 60000 * 5,
                 AutoReset = true,
                 Enabled = true
             };
 
-            timer.Elapsed += OnTimerTicked;
+            Timer.Elapsed += OnTimerTicked;
             return Task.CompletedTask;
         }
 
         private static async void OnTimerTicked(object sender, ElapsedEventArgs e)
         {
-            await Giveaway.Do(guild, channel);
-            await Giveaway.RewardAllActiveUsers(guild);
+            await Giveaway.Do(Guild, Channel);
+            await Giveaway.RewardAllActiveUsers(Guild);
         }
     }
 }

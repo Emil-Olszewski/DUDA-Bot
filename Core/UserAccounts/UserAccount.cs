@@ -1,51 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
-using Discord_BOT.Modules.ColorsManagment;
+using Discord_BOT.Misc;
+using Discord_BOT.Misc.Modules.InventorySystem;
 
 namespace Discord_BOT.Core.UserAccounts
 {
     public class UserAccount
     {
-        public ulong ID { get; set; }
+        public ulong Id { get; set; }
 
-        private int _cash;
-        private int _xp;
-        
-        public int Cash
+        private long _cash;
+        private long _xp;
+
+        public long Cash
         {
-            get { return _cash; }
-            set
-            {
-                if (value <=0) _cash = 0;
-                else _cash = value;
-            }
+            get => _cash;
+            set => _cash = value <= 0 ? 0 : value;
         }
 
-        public int XP
+        public long Xp
         {
-            get { return _xp; }
+            get => _xp;
             set
             {
                 _xp = value;
-                while(_xp >= (2 * Math.Pow(Level + 1, 3)) + 50)
-                {
-                    Level++;
-                }
+                Level = LevelCounter.WhichLevelWith(_xp);
             }
         }
 
         public uint Level { get; set; }
-        public uint NumberOfCases { get; set; }
-        public uint NumberOfKeys { get; set; }
         public uint OpenedCases { get; set; }
         public uint CasesProfit { get; set; }
-        public List<Color> Equipment { get; set; }
-        public uint ActuallyColor { get; set; }
-        
-        public DateTime last500Use { get; set; }
-        public DateTime last10Use { get; set; }
-        public DateTime lastTransfer { get; set; }
-        public DateTime lastRoulette { get; set; }
-        public DateTime lastCaseOpen { get; set; }
+        public int ActuallyColor { get; set; }
+        public bool Vip { get; set; }
+        public Inventory Inventory { get; set; }
+        public TimeSpan TimeSpendOnDiscord { get; set; }
+        public DateTime LastBigDotationUse { get; set; }
+        public DateTime LastLittleDotationUse { get; set; }
+        public DateTime LastKitVipUse { get; set; }
+        public DateTime LastTransfer { get; set; }
     }
 }

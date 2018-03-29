@@ -3,45 +3,49 @@ using Newtonsoft.Json;
 
 namespace Discord_BOT
 {
-    class Config
+    internal class Config
     {
-        private const string configFolder = "Resources";
-        private const string configFile = "config.json";
-
-        public static BotConfig Bot;
+        private const string ConfigFolder = "Resources";
+        private const string ConfigFile = "config.json";
+        public static Bot Bot;
 
         static Config()
         {
-            if (!Directory.Exists(configFolder))
-                Directory.CreateDirectory(configFolder);
+            if (!Directory.Exists(ConfigFolder))
+                Directory.CreateDirectory(ConfigFolder);
 
-            if (!File.Exists(configFolder + "/" + configFile))
+            if (!File.Exists(ConfigFolder + "/" + ConfigFile))
             {
-                Bot = new BotConfig();
+                Bot = new Bot();
                 string json = JsonConvert.SerializeObject(Bot, Formatting.Indented);
-                File.WriteAllText(configFolder + "/" + configFile, json);
+                File.WriteAllText(ConfigFolder + "/" + ConfigFile, json);
             }
             else
             {
-                string json = File.ReadAllText(configFolder + "/" + configFile);
-                Bot = JsonConvert.DeserializeObject<BotConfig>(json);
+                string json = File.ReadAllText(ConfigFolder + "/" + ConfigFile);
+                Bot = JsonConvert.DeserializeObject<Bot>(json);
             }
         }
     }
 
-    public struct BotConfig
+    public struct Bot
     {
-        public string token;
-        public string cmdPrefix;
-        public int time500;
-        public int time10;
-        public int timeTransfer;
-        public int timeRoulette;
-        public int timeCase;
-        public int minimalRoulette;
-        public int minimalTransfer;
-        public int cash5Min;
-        public int minimalInvestment;
-        public int minimalInvestmentTime;
+        public ulong ServerId;
+        public ulong GiveawayChannelId;
+        public string Token;
+        public string CmdPrefix;
+        public ulong Id;
+        public int BigDotationTime;
+        public int BigDotationAmount;
+        public int LittleDotationTime;
+        public int LittleDotationAmount;
+        public int KitVipTime;
+        public int TransferTime;
+        public int MinimalRoulette;
+        public int MinimalTransfer;
+        public int Cash5Min;
+        public int MinimalInvestment;
+        public int MinimalInvestmentTime;
+        public int InvestmentTimeToDoubleMoney;
     }
 }

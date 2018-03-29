@@ -9,24 +9,24 @@ using Discord.WebSocket;
 
 namespace Discord_BOT
 {
-    class Program
+    internal class Program
     {
         private DiscordSocketClient _client;
         private CommandHandler _handler;
 
-        static void Main(string[] args) 
-            => new Program().startAsync().GetAwaiter().GetResult();
+        private static void Main(string[] args)
+            => new Program().StartAsync().GetAwaiter().GetResult();
 
-        public async Task startAsync()
+        public async Task StartAsync()
         {
-            if (Config.Bot.token is null || Config.Bot.token == "") return;
+            if (Config.Bot.Token is null || Config.Bot.Token == "") return;
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Verbose
             });
             _client.Log += Log;
             _client.Ready += RepeatingTime.StartTimer;
-            await _client.LoginAsync(TokenType.Bot, Config.Bot.token);
+            await _client.LoginAsync(TokenType.Bot, Config.Bot.Token);
             await _client.StartAsync();
             Global.Client = _client;
             _handler = new CommandHandler();
@@ -34,7 +34,7 @@ namespace Discord_BOT
             await Task.Delay(-1);
         }
 
-        private Task Log(LogMessage msg)
+        private static Task Log(LogMessage msg)
         {
             Console.WriteLine(msg.Message);
             return Task.CompletedTask;

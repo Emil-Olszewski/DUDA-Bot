@@ -1,84 +1,96 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Discord;
 using Discord.WebSocket;
 using Discord_BOT.Core.UserAccounts;
+using Discord_BOT.Misc.Modules.CasesSystem;
 
-namespace Discord_BOT.Modules
+namespace Discord_BOT.Misc.Modules
 {
-    static public class Giveaway
+    public static class Giveaway
     {
-        const int scale = 100;
-        private static SocketGuildUser lastWinner;
-        static Prize[] prizes =
-        {
-            new Prize("1000 dudow!", cash: 1000, chance: 85),
-            new Prize("Skrzynka z kluczem!", keys: 1, cases: 1, chance: 65),
-            new Prize("Klucz!", keys: 1, chance: 45),
-            new Prize("500 dudow!", cash: 500, chance: 30),
-            new Prize("300 dudow!", cash: 300, chance: 15),
-            new Prize("Skrzynka!", cases: 1, chance: 0)
+        private static SocketGuildUser _lastWinner;
+        private static readonly List<ulong> PreviousUserIDs = new List<ulong>();
+
+        private static readonly Prize[] Prizes =
+         {
+            new Prize(@case: Cases.List.Find(x => x.ID == 103), chance: 990),
+            new Prize(@case: Cases.List.Find(x => x.ID == 102), chance: 980),
+            new Prize(@case: Cases.List.Find(x => x.ID == 101), chance: 890),
+            new Prize(@case: Cases.List.Find(x => x.ID == 100), chance: 640),
+            new Prize(key: new Key(Item.QUALITY.GOLD, 3), chance: 630),
+            new Prize(key: new Key(Item.QUALITY.GOLD, 2), chance: 610),
+            new Prize(key: new Key(Item.QUALITY.GOLD, 1), chance: 580),
+            new Prize(key: new Key(Item.QUALITY.GOLD, 0), chance: 540),
+            new Prize(key: new Key(Item.QUALITY.SILVER, 3), chance: 520),
+            new Prize(key: new Key(Item.QUALITY.SILVER, 2), chance: 480),
+            new Prize(key: new Key(Item.QUALITY.SILVER, 1), chance: 420),
+            new Prize(key: new Key(Item.QUALITY.SILVER, 0), chance: 340),
+            new Prize(key: new Key(Item.QUALITY.BRONZE, 4), chance: 290),
+            new Prize(key: new Key(Item.QUALITY.BRONZE, 3), chance: 240),
+            new Prize(key: new Key(Item.QUALITY.BRONZE, 2), chance: 170),
+            new Prize(key: new Key(Item.QUALITY.BRONZE, 1), chance: 90),
+            new Prize(key: new Key(Item.QUALITY.BRONZE, 0))
         };
 
-        static public async Task Do(SocketGuild guild, SocketTextChannel channel)
+        public static async Task Do(SocketGuild guild, SocketTextChannel channel)
         {
             if (!IsAtLeastTwoUsersOnline(guild))
                 return;
 
-            SocketGuildUser user = GetRandomUser(guild);
+            var user = GetRandomUser(guild);
             var account = UserAccounts.GetAccount(user);
-            Prize prize = Prize.GetRandomPrize(prizes, scale);
+            var prize = Prize.GetRandomPrize(Prizes.ToArray());
 
-            await channel.SendMessageAsync($"Gratuluje {user.Mention}." + $" Wygrales **{prize.Name}**");
-            GivePrize(account, prize);
-            lastWinner = user;
+            await channel.SendMessageAsync($"**[GIVEAWAY]** {user.Mention}" + $" wygrales **{prize.Name}**.");
+            prize.GiveAndReturnProfit(account);
+            UserAccounts.SaveAccounts();
+            _lastWinner = user;
         }
 
         private static bool IsAtLeastTwoUsersOnline(SocketGuild guild)
         {
-            int numberOfUsersOnline = 0;
+            var numberOfUsersOnline = 0;
             foreach (var user in guild.Users)
             {
-                if (user.Status != Discord.UserStatus.Offline)
-                    numberOfUsersOnline++; 
+                if (user.Status != UserStatus.Offline && user.IsBot == false)
+                    numberOfUsersOnline++;
 
-                if (numberOfUsersOnline >= 2) return true;
+                if (numberOfUsersOnline > 1) return true;
             }
 
             return false;
         }
 
-        static private SocketGuildUser GetRandomUser(SocketGuild guild)
+        private static SocketGuildUser GetRandomUser(SocketGuild guild)
         {
-            Random randomizer = new Random();
+            var randomizer = new Random();
             int random;
+
             do
             {
                 random = randomizer.Next(0, guild.Users.Count);
-            } while (guild.Users.ElementAt(random).IsBot == true
-                    || guild.Users.ElementAt(random).Status != Discord.UserStatus.Online
-                    || guild.Users.ElementAt(random) == lastWinner);
+            } while (guild.Users.ElementAt(random).IsBot
+                    || guild.Users.ElementAt(random).Status == UserStatus.Offline
+                    || guild.Users.ElementAt(random) == _lastWinner);
 
             return guild.Users.ElementAt(random);
         }
 
-        private static void GivePrize(UserAccount account, Prize prize)
-        {
-            account.Cash += prize.Cash;
-            account.NumberOfKeys += (uint)prize.Keys;
-            account.NumberOfCases += (uint)prize.Cases;
-            UserAccounts.SaveAccounts();
-        }
-
         public static Task RewardAllActiveUsers(SocketGuild guild)
         {
-            foreach(var user in guild.Users)
+            foreach (var user in guild.Users)
             {
-                if (user.Status != Discord.UserStatus.Offline)
-                {
-                    var account = UserAccounts.GetAccount(user);
-                    account.Cash += Config.Bot.cash5Min;
-                }
+                if (user.Status == UserStatus.Offline) continue;
+                var account = UserAccounts.GetAccount(user);
+                account.Cash += Config.Bot.Cash5Min;
+
+                if (PreviousUserIDs.Exists(x => x == user.Id))
+                    account.TimeSpendOnDiscord += new TimeSpan(0, 5, 0);
+                else
+                    PreviousUserIDs.Add(user.Id);
             }
 
             UserAccounts.SaveAccounts();

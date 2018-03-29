@@ -1,34 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord_BOT.Core.UserAccounts;
-using Discord_BOT.Modules.ColorsManagment;
+using Discord_BOT.Misc.Modules.ColorsManagment;
 
 namespace Discord_BOT.Misc.Modules.Investment
 {
-    public class InvestmentUI : ModuleBase<SocketCommandContext>
+    public class InvestmentUi : ModuleBase<SocketCommandContext>
     {
         [Command("mojelokaty")]
         public async Task ShowUserInvestments()
         {
             var account = UserAccounts.GetAccount(Context.User);
-            List<Investment> investments = InvestmentsManager.GetInvestments(account);
+            var investments = InvestmentsManager.GetInvestments(account);
             if (investments.Count == 0)
-                await Context.Channel.SendMessageAsync("Nie posiadasz zadnych lokat.");
+                await Context.Channel.SendMessageAsync(":warning: Nie posiadasz zadnych lokat.");
             else
             {
                 var embed = new EmbedBuilder();
                 embed.WithTitle($"Lokaty {Context.User.Username}");
-                embed.WithColor(Colors.AvalibleColors[(int)account.ActuallyColor].RightColor);
+                embed.WithColor(Colors.List[account.ActuallyColor].RightColor);
 
                 foreach (var i in investments)
                 {
-                    embed.AddField($"[{i.ID}] Zalozono: `{i.PaymentDate}`", $"" +
-                        $"Wyplata: `{i.MoneyToWithdraw}` dudow. Koniec: `{i.PaymentDate+i.InvestmentDuration}`");
+                    embed.AddField($":clock1: Zalozono: `{i.PaymentDate}`", $"" +
+                        $"Wyplata: `{i.MoneyToWithdraw}` dudow. Koniec: `{i.PaymentDate + i.InvestmentDuration}`");
                 }
 
                 await Context.Channel.SendMessageAsync("", false, embed);
@@ -38,72 +35,75 @@ namespace Discord_BOT.Misc.Modules.Investment
         [Command("zalozlokate")]
         public async Task CreateInvestment(int amount, int hours)
         {
-            if (amount < Config.Bot.minimalInvestment)
+            if (amount < Config.Bot.MinimalInvestment)
             {
-                await Context.Channel.SendMessageAsync($"Minimalna lokata to " +
-                    $"**{Config.Bot.minimalInvestment}** dudow");
+                await Context.Channel.SendMessageAsync($":warning: Minimalna lokata to " +
+                    $"**{Config.Bot.MinimalInvestment}** dudow.");
                 return;
             }
 
-            if (hours < Config.Bot.minimalInvestmentTime)
+            if (hours < Config.Bot.MinimalInvestmentTime)
             {
-                await Context.Channel.SendMessageAsync($"Minimalny czas lokaty " +
-                    $"to **{Config.Bot.minimalInvestmentTime}** godzin");
+                await Context.Channel.SendMessageAsync($":warning: Minimalny czas lokaty " +
+                    $"to **{Config.Bot.MinimalInvestmentTime}** godzin.");
                 return;
             }
 
             var account = UserAccounts.GetAccount(Context.User);
+            if (amount > account.Cash)
+            {
+                await Context.Channel.SendMessageAsync(":warning: Nie masz tyle dudow!");
+                return;
+            }
 
-            Random randomizer = new Random();
-            
-            int id = GenerateRandomID(amount);
-            InvestmentsManager.AddInvestment(new Investment((uint)id, account.ID, DateTime.Now, 
+            int id = GenerateRandomId();
+            InvestmentsManager.AddInvestment(new Investment((uint)id, account.Id, DateTime.Now,
                 new TimeSpan(hours, 0, 0), amount));
 
             account.Cash -= amount;
             UserAccounts.SaveAccounts();
-            await Context.Channel.SendMessageAsync("Pomyslnie utworzono lokate");
+            await Context.Channel.SendMessageAsync(":inbox_tray: Pomyslnie utworzono lokate.");
         }
 
-        private int GenerateRandomID(int amount)
+        private static int GenerateRandomId()
         {
-            Random randomizer = new Random();
+            var randomizer = new Random();
             return DateTime.Now.Day + DateTime.Now.Month + DateTime.Now.Hour +
-                DateTime.Now.Minute + amount * 3 + randomizer.Next(10, 100);
+                DateTime.Now.Minute + randomizer.Next(1, 10000);
         }
 
         [Command("wyplaclokaty")]
         public async Task DoPossibleWithdraws()
         {
             var account = UserAccounts.GetAccount(Context.User);
-            List<Investment> investments = InvestmentsManager.GetInvestments(account);
+            var investments = InvestmentsManager.GetInvestments(account);
 
             if (investments.Count == 0)
-                await Context.Channel.SendMessageAsync("Nie posiadasz zadnych lokat.");
+                await Context.Channel.SendMessageAsync(":warning: Nie posiadasz zadnych lokat.");
             else
             {
                 int cash = 0, investmentsDeleted = 0;
                 foreach (var i in investments)
                 {
-                    if(DateTime.Now >= i.PaymentDate + i.InvestmentDuration)
+                    if (DateTime.Now >= i.PaymentDate + i.InvestmentDuration)
                     {
                         account.Cash += i.MoneyToWithdraw;
                         cash += i.MoneyToWithdraw;
-                        InvestmentsManager.DeleteInvestment(i.ID);
+                        InvestmentsManager.DeleteInvestment(i.Id);
                         investmentsDeleted++;
                     }
                 }
 
-                if(investmentsDeleted > 0)
+                if (investmentsDeleted > 0)
                 {
-                    await Context.Channel.SendMessageAsync($"Wyplacono **{cash}** dudow z " +
+                    await Context.Channel.SendMessageAsync($":outbox_tray: Wyplacono **{cash}** dudow z " +
                         $"**{investmentsDeleted}** lokat.");
 
                     UserAccounts.SaveAccounts();
                 }
                 else
                 {
-                    await Context.Channel.SendMessageAsync("Zadna z twoich lokat sie nie zakonczyla");
+                    await Context.Channel.SendMessageAsync(":warning: Zadna z twoich lokat sie nie zakonczyla.");
                 }
             }
         }
